@@ -23,7 +23,7 @@ def main() -> None:
     inicial = np.array([1.0, 0.0])
     tiempo_final = 2 * np.pi
     exacta = solucion_exacta(np.array([tiempo_final]), inicial)[0]
-    pasos = np.array([25, 50, 100, 200, 400, 800])
+    pasos = np.array([10, 25, 50, 100, 200, 400, 800, 1600, 3200])
     dts = tiempo_final / pasos
 
     figura, eje = plt.subplots(figsize=(6, 4))
@@ -37,7 +37,8 @@ def main() -> None:
             print(f"{dt:9.5f} {errores[-1]:11.3e} {orden:>7}")
         eje.loglog(dts, errores, "o-", label=f"Euler {nombre}")
 
-    eje.set(xlabel="dt", ylabel="error en t = 2π", title="Convergencia a tiempo final fijo")
+    eje.set(xlabel="dt", ylabel=" x (o v) error respecto sol_exacta en t = 2π", title="Convergencia a tiempo final fijo")
+    eje.grid(alpha=.75)
     eje.legend()
     RESULTADOS.mkdir(exist_ok=True)
     destino = RESULTADOS / "convergencia.png"

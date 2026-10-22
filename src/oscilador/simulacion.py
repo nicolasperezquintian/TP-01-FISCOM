@@ -34,6 +34,24 @@ def newton_raphson(G, derivada_G, z0: float, tolerancia: float = 1e-12, max_iter
     iteraciones, lanza ``ArithmeticError``: nunca devuelve en silencio un valor
     que no convergió.
     """
+    iteracion = 0
+    z = z0 #condición inicial de z
+
+    #armo el bucle
+    while iteracion < max_iter and abs(G(z)) > tolerancia:
+        #manejo de error para la derivada
+        dG = derivada_G(z)
+        if dG == 0:
+            raise ArithmeticError(f"derivada_G=0 en Newton-Raphson, iteración: {iteracion}")
+
+        #actualizo z
+        z = z - G(z) / dG
+        iteracion += 1
+
+    if iteracion == max_iter:
+        raise ArithmeticError(f"Newton-Raphson no convirgió en {max_iter} iteraciones, residuo G(z)={G(z)}")
+    else:
+        return z
 
     raise NotImplementedError("completar Newton–Raphson")
 
@@ -54,6 +72,16 @@ def integrar_euler_explicito(
     Devuelve un arreglo de tiempos y otro de estados. Ambos incluyen la
     condición inicial, por lo que tienen ``pasos + 1`` elementos.
     """
+    tiempos = np.linspace(0,dt*pasos,pasos+1)
+    estados = np.zeros((pasos+1,2)) #tenemos dos variables de estado, x y v
+    estados[0] = estado_inicial #condición inicial
+    for i in range(1,pasos+1):
+        x_n, v_n = estados[i-1] #estado anterior
+        x_n1 = x_n + dt * v_n #estado actualizado de x
+        v_n1 = v_n + dt * aceleracion(x_n) #estado actualizado de v
+        estados[i] = [x_n1, v_n1] #actualizo el estado
+
+    return tiempos, estados
 
     raise NotImplementedError("completar Euler explícito")
 
@@ -82,6 +110,25 @@ def integrar_euler_implicito(
 
     Devuelve tiempos y estados, con ``pasos + 1`` elementos cada uno.
     """
+    tiempos = np.linspace(0,dt*pasos,pasos+1)
+    estados = np.zeros((pasos+1,2)) #tenemos dos variables de estado, x y v
+    estados[0] = estado_inicial #condición inicial  
+
+    for i in range(1,pasos+1): #cuidado con los límites de la suma, acá había puesto (1,pasos) me saltaba un error por no terminaba de ser obvio que estaba acá
+        #llamo a las variables del estado anterior
+        x_n, v_n = estados[i-1]
+
+        #Defino G y su derivada como variables únicamente de z
+        def G(z):
+            return z - x_n -dt * v_n - dt**2 * aceleracion(z)
+        def derivada_G(z):
+            return 1 - dt**2 * derivada_aceleracion(z)
+
+        x_n1 = newton_raphson(G,derivada_G,x_n) #dejamos la tolerancia e iteraciones máximas por defecto definidas en la función y actualizamos x
+        v_n1 = v_n - dt * x_n1 #actualizo v
+        estados[i]=[x_n1,v_n1] #actualizo el estado
+
+    return tiempos, estados
 
     raise NotImplementedError("completar Euler implícito")
 

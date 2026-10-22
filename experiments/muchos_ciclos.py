@@ -21,7 +21,7 @@ RESULTADOS = Path(__file__).resolve().parents[1] / "results"
 
 def main() -> None:
     inicial = np.array([1.0, 0.0])
-    dt = 0.02
+    dt = 0.0002
     periodos = 10
     pasos = round(periodos * 2 * np.pi / dt)
 
@@ -42,7 +42,7 @@ def main() -> None:
     energias.legend()
 
     RESULTADOS.mkdir(exist_ok=True)
-    destino = RESULTADOS / "muchos_ciclos.png"
+    destino = RESULTADOS / f"muchos_ciclos_dt={dt}.png"
     figura.savefig(destino, dpi=150, bbox_inches="tight")
     print(f"figura: {destino}")
 
